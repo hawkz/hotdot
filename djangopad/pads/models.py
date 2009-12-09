@@ -75,6 +75,7 @@ class TextArea(models.Model):
             content=self.content[:20],
         )
 
+    '''
     def save(self, *args, **kwargs):
         """Save a Revisioned copy after the real save.
         """
@@ -85,6 +86,7 @@ class TextArea(models.Model):
         new_revision.editor=self.editor
         new_revision.edit_time=self.edit_time
         new_revision.save()
+    '''
 
 class TextAreaRevision(models.Model):
     """Snapshot of the current TextArea state
@@ -92,7 +94,7 @@ class TextAreaRevision(models.Model):
     pad_guid = models.CharField(max_length=32)
     content = models.TextField( blank=True )
     editor = models.ForeignKey(User) #User who edited Pad
-    edit_time = models.DateTimeField()
+    edit_time = models.DateTimeField( auto_now_add=True )
 
     class Meta:
         ordering = ("-edit_time",)

@@ -4,17 +4,20 @@
 {% endblock %}
 
 {% block content %}
-    <h3 id="padtitle">Pad: <i>{{ pad.title }}</i></h3>
-    <!--
-    TODO:
-        - Attach event to editing: send messages, disallow edits for other + timeout
-        - Save on  button? Keep revisions. Show in pop-up window.
-        - Not logged in: Ajax vote, logged in: Push Vote.
-    -->
-    <div id="textarea_a" class="textarea span-12">
-	<textarea class='colab'>{{ textarea_a.content }}</textarea>
-    </div>
+<h3 id="padtitle">Pad: <i>{{ pad.title }}</i></h3>
 
+<!--
+TODO:
+- Attach event to editing: send messages, disallow edits for other + timeout
+- Save on  button? Keep revisions. Show in pop-up window.
+- Not logged in: Ajax vote, logged in: Push Vote.
+-->
+<div id="textarea_a" class="textarea span-12">
+    <p>    
+	<a href="#" class="save-click">CLICK to SAVE</a>
+    </p>
+    <textarea class='colab'>{{ textarea_a.content }}</textarea>
+</div>
 
 {% endblock %}
 

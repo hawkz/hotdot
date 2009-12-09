@@ -18,7 +18,7 @@ sys.path.append("..")
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
 
 from django.contrib.auth.models import User
-from pads.models import Pad, TextArea
+from pads.models import Pad, TextArea, TextAreaRevision
 
 try:
     # 2.6 will have a json module in the stdlib
@@ -50,6 +50,10 @@ def handle_send(msg, username, channel_id):
         content = msg.get("content")
         update = _handle_edit(content, username, channel_id)
 
+    if msgtype == "save":
+        content = msg.get("content")
+        update = _handle_save(content, username, channel_id)
+
     #update the message with type specific response info:
     msg.update(update)
     return msg
@@ -74,6 +78,21 @@ def _handle_edit(content, username, channel_id):
 
     return {"content":content}
 
+def _handle_save(content, username, channel_id):
+    """Just can't see saving on each keystroke.
+
+    Maybe we can run save every so often.
+    """
+
+    r = _handle_edit(content, username, channel_id)
+    # Do this here instead of each time the TextArea is changed.
+    new_revision = TextAreaRevision()
+    new_revision.pad_guid = channel_id
+    new_revision.content = content
+    new_revision.editor = User.objects.get(username=username)
+    new_revision.save()
+
+    return r
 
 def handle_subscribe(msg, username, channel_id):
     print "=handle_subscribe= ", msg, username, channel_id

@@ -1,21 +1,24 @@
-function vote_send_message(){
-    var choice = $(this).attr("id");
-    var fullmsg = {"type":"vote", "choice":choice};
+function save_send_message(){
+    // var choice = $(this).attr("id");
+    console.log('you did click save');
+    var content = $(this).parent().next().val();
+    console.log(content);
+    var fullmsg = {"type":"save", 'content':content};
     fullmsg = JSON.stringify(fullmsg); 
     client.send(fullmsg, CHANNEL_NAME);
 }
-
-function vote_handle_message(msg){
+/*
+function save_handle_message(msg){
     var choice = msg.choice;
     var target = $("#votes_"+choice);
     var current = Number(target.text())+1;
     //console.log("vote_handle_message=> ", choice, current);
     target.text(current);
 }
-
+*/
 function edit_send_message(evt){
     var evtype = evt.type;
-    var choice = $(this).parent().attr("id").split("_")[1];
+    // var choice = $(this).parent().attr("id").split("_")[1];
     var content = $(this).val();
     switch(evtype) {
         case "focus":
@@ -32,7 +35,7 @@ function edit_send_message(evt){
 
 function edit_handle_message(msg){
     if (msg.from == USERNAME) return;
-    var choice = msg.choice;
+    // var choice = msg.choice;
     // TODO make multiple windows possible, resizable, etc.
     var target = $("#textarea_"+"a"+" textarea");
     switch(msg.event) {
@@ -51,8 +54,8 @@ function edit_handle_message(msg){
 
 function handle_incoming_message(msg){
     switch(msg.type) {
-        case "vote":
-            vote_handle_message(msg);
+        case "save":
+            //save_handle_message(msg);
             break;
         case "edit":
             edit_handle_message(msg);
@@ -109,6 +112,7 @@ $(document).ready(function(){
     client.connect(HOST, STOMP_PORT, USERNAME, cookie);
     // Attach all event handlers:
     // $(".vote").click(vote_send_message);
+    $(".save-click").click(save_send_message);
     $(".textarea textarea").focus(edit_send_message);
     $(".textarea textarea").keyup(edit_send_message);
 });
