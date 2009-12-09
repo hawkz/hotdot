@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block extrahead %}
+    <script type="text/javascript" src="/static/js/jquery-1.3.2.min.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
+    <script type="text/javascript" src="/static/js/Orbited.js"></script>
+    <script type="text/javascript" src="/static/js/JSON.js"></script>
+    <script type="text/javascript" src="/static/js/protocols/stomp/stomp.js"></script>
+    <script>
+        TCPSocket = Orbited.TCPSocket;
+        CHANNEL_ID = "{{ CHANNEL_NAME }}";
+        CHANNEL_NAME = "/topic/{{ CHANNEL_NAME }}";
+        HOST = "{{ HOST }}";
+        STOMP_PORT = {{ STOMP_PORT }};
+        USERNAME = "{{ user }}";
+        SESSION_COOKIE_NAME = "{{ SESSION_COOKIE_NAME }}"; 
+    </script>
+    <script type="text/javascript" src="/static/js/main.js"></script>
+{% endblock %}
+
+{% block content %}
+    <h1 id="padquestion">Pad: <i>{{ pad.title }}</i></h1><br><br>
+    <!--
+    TODO:
+        - Attach event to editing: send messages, disallow edits for other + timeout
+        - Save on  button? Keep revisions. Show in pop-up window.
+        - Not logged in: Ajax vote, logged in: Push Vote.
+    -->
+    <div id="textarea_a" class="textarea span-12">
+	<textarea>{{ textarea_a.content }}</textarea>
+	{% comment %}
+	    <h2>textarea A (<span id="votes_a">{{ votes_a }}</span> vote{{ votes_a|pluralize }}):
+		<input id="a" class="vote" type="button" value="Vote for A"></input><br>
+	    </h2>
+	{% endcomment %}
+    </div>
+
+
+{% endblock %}
+
+{% block extrafooter %}
+    <link rel="stylesheet" href="/static/chat/chat.css" type="text/css" />
+    <script type="text/javascript" src="/static/chat/chat.js"></script>
+{% endblock %}

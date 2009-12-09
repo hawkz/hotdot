@@ -2,3 +2,5 @@ django
 orbited
 twisted 
 simplejson
+django-registration
+

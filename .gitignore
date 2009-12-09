@@ -3,4 +3,5 @@
 *.log.*
 *.db
 *.pid
-TODO
+#TODO
+*.swp
