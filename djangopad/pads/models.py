@@ -22,10 +22,10 @@ class Pad(models.Model):
         ordering = ('-last_modified', )
 
     def __unicode__(self):
-        return '({user}) -- {title}'.format( {
-            'user':self.owner,
-            'title':self.title,
-        } )
+        return '({user}) -- {title}'.format(
+            user=self.owner,
+            title=self.title,
+        )
 
     @models.permalink
     def get_absolute_url(self):
@@ -70,10 +70,10 @@ class TextArea(models.Model):
         ordering = ('-edit_time',)
 
     def __unicode__(self):
-        return '{pad} - {content}'.format( {
-            'pad': self.pad,
-            'content': self.content[:20],
-        })
+        return '{pad} - {content}'.format(
+            pad=self.pad,
+            content=self.content[:20],
+        )
 
     def save(self, *args, **kwargs):
         """Save a Revisioned copy after the real save.
@@ -98,9 +98,9 @@ class TextAreaRevision(models.Model):
         ordering = ("-edit_time",)
 
     def __unicode__(self):
-        return '{editor} - {time} - {content}'.format( {
-            'editor': self.editor,
-            'time': self.edit_time,
-            'content': self.content[:50],
-        } )
+        return '{editor} - {time} - {content}'.format(
+            editor=self.editor,
+            time=self.edit_time,
+            content=self.content[:50],
+        )
 
