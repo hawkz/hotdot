@@ -1,6 +1,11 @@
 {% extends 'base.html' %}
 
 {% block extrahead %}
+<style>
+    span.s { color:blue; }
+    span.q { color:red; }
+</style>
+
 {% endblock %}
 
 {% block content %}
@@ -13,7 +18,9 @@ TODO:
 -->
 <div id="textarea_a" class="textarea span-12">
     <a href="#" class="save-click">CLICK to SAVE</a>
-    <textarea class='colab'>{{ textarea_a.content }}</textarea>
+    <div class='colab' onClick="this.contentEditable='true';">
+	{{ textarea_a.content|safe }}
+    </div>
 </div>
 
 {% endblock %}

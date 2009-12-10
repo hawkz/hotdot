@@ -1,7 +1,7 @@
 function save_send_message(){
     // var choice = $(this).attr("id");
     // console.log('you did click save');
-    var content = $(this).parent.find('textarea');
+    var content = $(this).parent().find('.colab').html();
     // console.log(content);
     var currentTime = new Date();
     var hours = currentTime.getHours();
@@ -22,10 +22,10 @@ function save_handle_message(msg){
 */
 function edit_send_message(evt){
     var THE_EVENT = evt;
-    console.log(THE_EVENT);
+    //console.log(THE_EVENT);
     var evtype = evt.type;
     // var choice = $(this).parent().attr("id").split("_")[1];
-    var content = $(this).val();
+    var content = $(this).html();
     switch(evtype) {
         case "focus":
             break;
@@ -43,14 +43,14 @@ function edit_handle_message(msg){
     if (msg.from == USERNAME) return;
     // var choice = msg.choice;
     // TODO make multiple windows possible, resizable, etc.
-    var target = $("#textarea_"+"a"+" textarea");
+    var target = $("#textarea_a div.colab");
     switch(msg.event) {
         case "focus":
             break;
             target.append($("<p>").attr("id", "active").text(msg.from+ " is typing..."));
         case "keyup":
             $("<p>").attr("id", "active").remove();
-            target.val(msg.content);
+            target.html(msg.content);
             break;
         default:
             break;
@@ -119,7 +119,7 @@ $(document).ready(function(){
     // Attach all event handlers:
     // $(".vote").click(vote_send_message);
     $(".save-click").click(save_send_message);
-    $(".textarea textarea").focus(edit_send_message);
-    $(".textarea textarea").keyup(edit_send_message);
+    //$(".textarea div.colab").focus(edit_send_message);
+    $(".textarea div.colab").keyup(edit_send_message);
 });
 
