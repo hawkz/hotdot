@@ -18,12 +18,12 @@ function chat_send_message(msg){
 function chat_handle_message(msg){
     var text = msg.msg;
     var from = msg.from;
-    console.log(msg.type);
+    // console.log(msg.type);
     var currentTime = new Date();
     var hours = currentTime.getHours();
     var minutes = currentTime.getMinutes();
     var time = hours+':'+minutes;
-    console.log(msg.time, time);
+    // console.log(msg.time, time);
     if (from == USERNAME) from = "me";
     var chatmsg = "<p class='chatmsg'>"+time+"<b>"+from+": </b>"+text+"</p>";
     var chat_text = $("#chat_text");
