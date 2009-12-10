@@ -7,15 +7,25 @@ TODO:
 
 
 function chat_send_message(msg){
-    var fullmsg = {"type":"chat", "msg":msg};
+    var currentTime = new Date();
+    var hours = currentTime.getHours();
+    var minutes = currentTime.getMinutes();
+    var time = hours+':'+minutes;
+    var fullmsg = {"type":"chat", "msg":msg, 'time': time };
     fullmsg = JSON.stringify(fullmsg); 
     client.send(fullmsg, CHANNEL_NAME);
 };
 function chat_handle_message(msg){
     var text = msg.msg;
-    var from = msg.from; 
+    var from = msg.from;
+    console.log(msg.type);
+    var currentTime = new Date();
+    var hours = currentTime.getHours();
+    var minutes = currentTime.getMinutes();
+    var time = hours+':'+minutes;
+    console.log(msg.time, time);
     if (from == USERNAME) from = "me";
-    var chatmsg = "<p class='chatmsg'><b>"+from+": </b>"+text+"</p>";
+    var chatmsg = "<p class='chatmsg'>"+time+"<b>"+from+": </b>"+text+"</p>";
     var chat_text = $("#chat_text");
     chat_text.append(chatmsg);
     chat_text.attr({scrollTop: chat_text.attr("scrollHeight")});

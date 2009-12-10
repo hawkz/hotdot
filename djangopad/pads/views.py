@@ -59,7 +59,7 @@ def detail(request, owner, slug):
     args = {"textarea_a":textarea_a, "user":request.user,
             'textareas': textareas,
             "STOMP_PORT":settings.STOMP_PORT, "CHANNEL_NAME": slug_guid,
-            "HOST":settings.INTERFACE, "SESSION_COOKIE_NAME":settings.SESSION_COOKIE_NAME}
+            "HOST":settings.INTERFACE, "SESSION_COOKIE_NAME": settings.SESSION_COOKIE_NAME}
 
     return object_detail( request,
             queryset = Pad.objects.all(),

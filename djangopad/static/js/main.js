@@ -1,9 +1,13 @@
 function save_send_message(){
     // var choice = $(this).attr("id");
-    console.log('you did click save');
-    var content = $(this).parent().next().val();
-    console.log(content);
-    var fullmsg = {"type":"save", 'content':content};
+    // console.log('you did click save');
+    var content = $(this).parent.find('textarea');
+    // console.log(content);
+    var currentTime = new Date();
+    var hours = currentTime.getHours();
+    var minutes = currentTime.getMinutes();
+    var time = hours+':'+minutes
+    var fullmsg = {"type":"save", 'content':content, 'time':time};
     fullmsg = JSON.stringify(fullmsg); 
     client.send(fullmsg, CHANNEL_NAME);
 }
@@ -17,6 +21,8 @@ function save_handle_message(msg){
 }
 */
 function edit_send_message(evt){
+    var THE_EVENT = evt;
+    console.log(THE_EVENT);
     var evtype = evt.type;
     // var choice = $(this).parent().attr("id").split("_")[1];
     var content = $(this).val();

@@ -4,18 +4,15 @@
 {% endblock %}
 
 {% block content %}
+<div class="clock"></div>
 <h3 id="padtitle">Pad: <i>{{ pad.title }}</i></h3>
-
 <!--
 TODO:
 - Attach event to editing: send messages, disallow edits for other + timeout
 - Save on  button? Keep revisions. Show in pop-up window.
-- Not logged in: Ajax vote, logged in: Push Vote.
 -->
 <div id="textarea_a" class="textarea span-12">
-    <p>    
-	<a href="#" class="save-click">CLICK to SAVE</a>
-    </p>
+    <a href="#" class="save-click">CLICK to SAVE</a>
     <textarea class='colab'>{{ textarea_a.content }}</textarea>
 </div>
 
@@ -36,9 +33,10 @@ TODO:
         USERNAME = "{{ user }}";
         SESSION_COOKIE_NAME = "{{ SESSION_COOKIE_NAME }}"; 
     </script>
+    <!-- STOMP messaging -->
     <script type="text/javascript" src="/static/js/main.js"></script>
-
-
+    <!-- CHAT -->
     <link rel="stylesheet" href="/static/chat/chat.css" type="text/css" />
     <script type="text/javascript" src="/static/chat/chat.js"></script>
+
 {% endblock %}
