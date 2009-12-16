@@ -15,6 +15,7 @@ s.set_seqs(txt0, txt1)
 '''
 
 import difflib
+import re
 
 class StrExt(str):
     '''Extensions to the Python String to add greater diffing convenience'''
@@ -82,6 +83,8 @@ def process(oldstring, newstring, owner):
     opn = "<span class='{0}'>".format(owner)
     opn_gen= "<span"
     cls = '</span>'
+    regx = r"<span class='(?P<user>\w+)'>"
+    rx = re.compile(regx)
     print old,'\n', new
     print opn, cls
     s = difflib.SequenceMatcher()
@@ -90,6 +93,16 @@ def process(oldstring, newstring, owner):
     for oc in s.get_opcodes():
         if oc[0] == 'insert':
             print 'we have insert'
+            if oc[3] == 0:
+                print 'insert at 0'
+                tmp = new.add_str_before(cls, oc[4])
+                ret = tmp.add_str_before(opn, 0)
+                return ret
+            if not opn in new and not opn_gen in new and not cls in new:
+                print 'no spans yet'
+                tmp = new.add_str_before(cls, len(new))
+                ret = tmp.add_str_before(opn, 0)
+                return ret
             if new.right_before_wrong(opn, cls, reverse=True, start=0,
                     end=oc[3]):
                 print 'correct before'
@@ -98,6 +111,7 @@ def process(oldstring, newstring, owner):
                     return new
                 else:
                     print 'we are borked'
+                    return 'we are borked'
             elif new.right_before_wrong(opn, cls, start=oc[3]-1, end=len(new) ):
                 #print 'next is right'
                 tmp = new.rm_str_sli( oc[4], oc[4]+len(opn) )
@@ -122,14 +136,16 @@ def process(oldstring, newstring, owner):
                     print 'but we are not in a span, make a new one'
                     tmp = new.add_str_before(cls, oc[4]+1)
                     print tmp
-                    ret = tmp.add_str_before(opn, oc[3]+1)
+                    ret = tmp.add_str_before(opn, oc[3])
                     return ret
                 else:
                     print 'we are in a span, move'
-                    tmp = new.add_str_before(opn, oc[3]+1)
+                    t = new.rm_str_slice(new.find(cls),oc[3],len(new)
+                    tmp = new.add_str_before(opn, oc[3])
                     print tmp
-                    ret = tmp.add_str_before(cls, oc[3]+1)
+                    ret = tmp.add_str_before(cls, oc[3])
                     return ret
+    return new
 
 def get_addition(newstring, oldstring):
     '''If it is addition, return the index of the first changed character
