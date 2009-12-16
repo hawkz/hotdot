@@ -2,7 +2,6 @@
 This module will take two strings that contain html and find the difference.
 Upon finding the difference, we will determine if we are in a span owned by the
 user argument.  If not, we shall wrap the extraneous characters in such a span.
-
 import difflib
 s = difflib.SequenceMatcher()
 txt0 = """<span class='foo'>fo</span><span class='bar'>ar</span>"""
@@ -43,6 +42,12 @@ class StrExt(str):
                 return True
             #print self.rfind(right, start, end), self.rfind(wrong, start, end)
             return self.rfind(right, start, end) > self.rfind(wrong, start, end)
+    def indices_match(self, right, other, reverse=False,
+            start=None, end=None):
+        if reverse:
+            return self.rfind(right,start,end)!=-1 and self.rfind(right,start,end) == self.rfind(other,start,end)
+        else:
+            return self.find(right,start,end)!=-1 and self.find(right,start,end) == self.find(other,start,end)
     def has_match_before(self, text, from_index):
         if self.rfind(text, 0, from_index) != -1:
             return True
@@ -75,6 +80,7 @@ def process(oldstring, newstring, owner):
     new = StrExt(newstring)
     #TODO: make regex to accept " or ' ?
     opn = "<span class='{0}'>".format(owner)
+    opn_gen= "<span"
     cls = '</span>'
     print old,'\n', new
     print opn, cls
@@ -86,20 +92,48 @@ def process(oldstring, newstring, owner):
             print 'we have insert'
             if new.right_before_wrong(opn, cls, reverse=True, start=0,
                     end=oc[3]):
-                #print 'correct before'
-                
-            if new.right_before_wrong(opn, cls, start=oc[3]-1, end=len(txt1) ):
+                print 'correct before'
+                if new.right_before_wrong(cls, opn_gen, start=oc[3], end=len(new)):
+                    print 'correct tags'
+                    return new
+                else:
+                    print 'we are borked'
+            elif new.right_before_wrong(opn, cls, start=oc[3]-1, end=len(new) ):
                 #print 'next is right'
                 tmp = new.rm_str_sli( oc[4], oc[4]+len(opn) )
                 #print tmp
                 ret = tmp.add_str_before( opn, oc[3] )
                 return ret
-
-
-
+            elif new.rfind(opn, 0, oc[3]) != -1 and new.rfind(opn,0,oc[3]) == new.rfind(opn,0,oc[3]):
+                print 'the previous span is correct'
+                before = new.rfind(cls, 0, oc[3])
+                print before
+                print oc[3], oc[4], len(new)
+                s = new[oc[3]:oc[4]]
+                print s
+                tmp = new.rm_str_sli( oc[3], oc[4] )
+                print tmp
+                ret = tmp.add_str_before(s, before)
+                print ret
+                return ret
+            elif not new.indices_match(opn,opn_gen,reverse=True,start=0,end=oc[3]) and ( not new.indices_match(opn,opn_gen,start=oc[3],end=len(new)) or not new.right_before_wrong(opn,cls,start=oc[3],end=len(new)) ):
+                print 'not adjacent to correct, wrap with span'
+                if not new.right_before_wrong(cls,opn_gen,start=oc[3], end=len(new) ):
+                    print 'but we are not in a span, make a new one'
+                    tmp = new.add_str_before(cls, oc[4]+1)
+                    print tmp
+                    ret = tmp.add_str_before(opn, oc[3]+1)
+                    return ret
+                else:
+                    print 'we are in a span, move'
+                    tmp = new.add_str_before(opn, oc[3]+1)
+                    print tmp
+                    ret = tmp.add_str_before(cls, oc[3]+1)
+                    return ret
 
 def get_addition(newstring, oldstring):
     '''If it is addition, return the index of the first changed character
+
 
     '''
     if len(newstring) < len(oldstring):

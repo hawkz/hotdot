@@ -62,7 +62,7 @@ class TextArea(models.Model):
     """
 
     pad = models.ForeignKey(Pad)
-    content = models.TextField( blank=True, default="Edit colab!" )
+    content = models.TextField( blank=True,)
     editor = models.ForeignKey(User) #User who edited Pad
     edit_time = models.DateTimeField(auto_now=True)
 

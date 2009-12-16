@@ -19,7 +19,7 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
 
 from django.contrib.auth.models import User
 from pads.models import Pad, TextArea, TextAreaRevision
-from pads.add_span import diff_and_span
+from pads.add_span import process
 
 try:
     # 2.6 will have a json module in the stdlib
@@ -74,12 +74,12 @@ def _handle_edit(content, username, channel_id):
     if user is None:
         return {"error":"No such user"}
 
-    content = diff_and_span( content, textarea.content, user )
-    textarea.content = content
+    c = process( textarea.content, content, user )
+    textarea.content = c
     textarea.editor = user
     textarea.save()
 
-    return {"content":content}
+    return {"content":c}
 
 def _handle_save(content, username, channel_id):
     """Just can't see saving on each keystroke.
