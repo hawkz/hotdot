@@ -75,50 +75,62 @@ class StrExt(str):
         return StrExt( "".join( (self[:before], string, self[before:]) ))
 
 
+def get_other_opn(newstring, rawgex, start=None, end=None):
+    r = re.compile(rawgex)
+    if r.findall( newstring[start][end] ):
+        return r.findall( newstring[start][end] ).pop()
+    else:
+        return []
+
 def process(oldstring, newstring, owner):
     '''Take two strings and ``preserve ownership`` with span tags'''
     old = StrExt(oldstring)
     new = StrExt(newstring)
     #TODO: make regex to accept " or ' ?
-    opn = "<span class='{0}'>".format(owner)
-    opn_gen= "<span"
+    opn = '<span class="{0}">'.format(owner)
+    opn_gen= '<span'
     cls = '</span>'
-    regx = r"<span class='(?P<user>\w+)'>"
-    rx = re.compile(regx)
-    print old,'\n', new
-    print opn, cls
+    regx = r'<span class="(\w+)">'
+    #print old,'\n', new
+    #print opn, cls
     s = difflib.SequenceMatcher()
     s.set_seqs(old,new)
     print s.get_opcodes()
     for oc in s.get_opcodes():
+        #print oc
+        if not new[oc[3]:oc[4]] or new[oc[3]:oc[4]].isspace():
+            yield newstring
         if oc[0] == 'insert':
             print 'we have insert'
             if oc[3] == 0:
                 print 'insert at 0'
                 tmp = new.add_str_before(cls, oc[4])
                 ret = tmp.add_str_before(opn, 0)
-                return ret
-            if not opn in new and not opn_gen in new and not cls in new:
+                yield ret
+            elif not any(x in new for x in [opn, opn_gen, cls]):
                 print 'no spans yet'
+                print 'with string,', new, opn, opn_gen, cls
+                if not new and not opn_gen and not cls:
+                    print 'our strings are lost'
                 tmp = new.add_str_before(cls, len(new))
                 ret = tmp.add_str_before(opn, 0)
-                return ret
-            if new.right_before_wrong(opn, cls, reverse=True, start=0,
+                yield ret
+            elif new.right_before_wrong(opn, cls, reverse=True, start=0,
                     end=oc[3]):
                 print 'correct before'
                 if new.right_before_wrong(cls, opn_gen, start=oc[3], end=len(new)):
                     print 'correct tags'
-                    return new
+                    yield new
                 else:
                     print 'we are borked'
-                    return 'we are borked'
+                    yield 'we are borked'
             elif new.right_before_wrong(opn, cls, start=oc[3]-1, end=len(new) ):
                 #print 'next is right'
                 tmp = new.rm_str_sli( oc[4], oc[4]+len(opn) )
                 #print tmp
                 ret = tmp.add_str_before( opn, oc[3] )
-                return ret
-            elif new.rfind(opn, 0, oc[3]) != -1 and new.rfind(opn,0,oc[3]) == new.rfind(opn,0,oc[3]):
+                yield ret
+            elif new.rfind(opn, 0, oc[3]) != -1 and new.rfind(opn,0,oc[3]) == new.rfind(opn_gen,0,oc[3]):
                 print 'the previous span is correct'
                 before = new.rfind(cls, 0, oc[3])
                 print before
@@ -129,23 +141,29 @@ def process(oldstring, newstring, owner):
                 print tmp
                 ret = tmp.add_str_before(s, before)
                 print ret
-                return ret
+                yield ret
             elif not new.indices_match(opn,opn_gen,reverse=True,start=0,end=oc[3]) and ( not new.indices_match(opn,opn_gen,start=oc[3],end=len(new)) or not new.right_before_wrong(opn,cls,start=oc[3],end=len(new)) ):
                 print 'not adjacent to correct, wrap with span'
                 if not new.right_before_wrong(cls,opn_gen,start=oc[3], end=len(new) ):
                     print 'but we are not in a span, make a new one'
-                    tmp = new.add_str_before(cls, oc[4]+1)
+                    tmp = new.add_str_before(cls, oc[4])
                     print tmp
-                    ret = tmp.add_str_before(opn, oc[3])
-                    return ret
+                    ret = tmp.add_str_before(opn, oc[3]-1)
+                    yield ret
                 else:
-                    print 'we are in a span, move'
-                    t = new.rm_str_slice(new.find(cls),oc[3],len(new)
-                    tmp = new.add_str_before(opn, oc[3])
-                    print tmp
-                    ret = tmp.add_str_before(cls, oc[3])
-                    return ret
-    return new
+                    print 'we are in a span, the wrong one'
+                    #t = new.rm_str_slice(new.find(cls),oc[3],len(new)
+                    other = get_other_opn(new,regx,0,oc[3])
+                    print other
+                    r = re.compile(r'(<span class="\w+">)')
+                    if r.findall(r'<span class="{0}">'.format(other)):
+                        opn_other = r.findall(r'<span class="{0}">'.format(other)).pop()
+                    else:
+                        opn_other = ''
+                    tmp = new.add_str_before(opn_other, oc[4]+1)
+                    i = tmp.add_str_before(cls, oc[4])
+                    ret = i.add_str_before(opn, oc[3])
+                    yield ret
 
 def get_addition(newstring, oldstring):
     '''If it is addition, return the index of the first changed character

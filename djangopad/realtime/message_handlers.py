@@ -74,12 +74,15 @@ def _handle_edit(content, username, channel_id):
     if user is None:
         return {"error":"No such user"}
 
-    c = process( textarea.content, content, user )
-    textarea.content = c
+    #print 'check the content, username, channel_id', content, username, channel_id
+    for c in process( textarea.content, content, user ):
+        content = textarea,content
+        textarea.content = c
+
     textarea.editor = user
     textarea.save()
 
-    return {"content":c}
+    return {"content":textarea.content}
 
 def _handle_save(content, username, channel_id):
     """Just can't see saving on each keystroke.

@@ -22,7 +22,7 @@ function save_handle_message(msg){
 */
 function edit_send_message(evt){
     var THE_EVENT = evt;
-    //console.log(THE_EVENT);
+    // console.log(THE_EVENT);
     var evtype = evt.type;
     // var choice = $(this).parent().attr("id").split("_")[1];
     var content = $(this).html();
