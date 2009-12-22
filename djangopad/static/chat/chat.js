@@ -22,10 +22,16 @@ function chat_handle_message(msg){
     var currentTime = new Date();
     var hours = currentTime.getHours();
     var minutes = currentTime.getMinutes();
+    // commence stupid js hack to format the time.
+    minutes = minutes + '';
+    // console.log( minutes.length );
+    if ( minutes.length == 1 ) {
+        minutes = '0' + minutes;
+    }
     var time = hours+':'+minutes;
     // console.log(msg.time, time);
     if (from == USERNAME) from = "me";
-    var chatmsg = "<p class='chatmsg'>"+time+"<b>"+from+": </b>"+text+"</p>";
+    var chatmsg = "<p class='chatmsg'>"+time+" <b>"+from+": </b>"+text+"</p>";
     var chat_text = $("#chat_text");
     chat_text.append(chatmsg);
     chat_text.attr({scrollTop: chat_text.attr("scrollHeight")});
@@ -33,7 +39,7 @@ function chat_handle_message(msg){
 
 function chat_create_box(title) {
     var html = "<div id='chatbox'>";
-    html += "<p id='chat_title'>"+title+"<span id='chat_close'>-</span><span id='chat_open'>^</span></p>";
+    html += "<p id='chat_title'><span id='chat_close'>-</span><span id='chat_open'>^</span></p>";//title :D TODO
     html += "</div>";
     $("#container").after(html);
     chat_create_box_body();
