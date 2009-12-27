@@ -4,10 +4,10 @@ Upon finding the difference, we will determine if we are in a span owned by the
 user argument.  If not, we shall wrap the extraneous characters in such a span.
 import difflib
 s = difflib.SequenceMatcher()
-txt0 = """<span class='foo'>fo</span><span class='bar'>ar</span>"""
-txt1 = """<span class='foo'>foo</span><span class='bar'>ar</span>"""
-txt2 = """<span class='foo'>foo</span>b<span class='bar'>ar</span>"""
-txt3 = """<span class='foo'>foo</span><span class='bar'>bar</span>"""
+txt0 = """<span class="foo">fo</span><span class="bar">ar</span>"""
+txt1 = """<span class="foo">foo</span><span class="bar">ar</span>"""
+txt2 = """<span class="foo">foo</span>b<span class="bar">ar</span>"""
+txt3 = """<span class="foo">foo</span><span class="bar">bar</span>"""
 u0 = 'foo'
 u1 = 'bar'
 s = difflib.SequenceMatcher()
@@ -27,27 +27,33 @@ def process(old, new, user):
     s.set_seqs(old, new)
     for d in s.get_opcodes():
         if d[0] == 'equal':
-            yield new
+            print 'equal between {0}:{1} and {2}:{3}'.format(d[1],d[2],d[3],d[4])
+            pass
         if d[0] == 'insert':
-            if not regex.findall(new[0:d[3]]):
-                yield opn.format(user=user)+new[:]+cls
-            elif regex.findall(new[0:d[3]]).pop() == user:
-                yield new
+            print 'insert at {0} with {1}:{2}'.format(d[1],d[3],d[4])
+            if not regex.findall(new):
+                print 'there are no spans, make the first'
+                yield opn.format(user=user)+new+cls
+            if new.rfind(opn.format(user=user), 0, d[3]) > new.rfind(cls, 0, d[3] ):
+                print 'we are in the correct span'
+                pass
             else:
-                other = regex.findall(new[0:d[3]]).pop()
-                if new.rfind(opn.format(user=other), 0,d[3])\
-                        > new.rfind(cls,0,d[3]):
-                    yield new[0:d[3]]+\
+                if regex.findall( new[0:d[3]] ):
+                    other = regex.findall( new[0:d[3]] ).pop()
+                    if new.rfind(opn.format(user=other), 0,d[3])\
+                            > new.rfind(cls,0,d[3]):
+                        print 'we are in somebody else\'s span'
+                        yield new[0:d[3]]+\
                             cls+opn.format(user=user)+\
                             new[d[3]:d[4]]+\
                             cls+opn.format(user=other)+\
                             new[d[4]:]
-                else:
-                    yield new[0:d[3]]+\
+                    else:
+                        print 'no man\'s land'
+                        yield new[0:d[3]]+\
                             opn.format(user=user)+\
                             new[d[3]:d[4]]+\
-                            cls
-
+                            cls + new[d[4]:]
 
 
 """
