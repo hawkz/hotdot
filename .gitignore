@@ -1,7 +1,9 @@
+build
+pip-log.txt
 *.pyc
 *.log
 *.log.*
-*.db
+*.db*
 *.pid
 #TODO
 *.swp

@@ -75,13 +75,9 @@ def _handle_edit(content, username, channel_id):
         return {"error":"No such user"}
 
     #print 'check the content, username, channel_id', content, username, channel_id
-    for c in process( textarea.content, content, user ):
-        content = textarea,content
-        textarea.content = c
-
+    textarea.content = process( textarea.content, content, user )
     textarea.editor = user
     textarea.save()
-
     return {"content":textarea.content}
 
 def _handle_save(content, username, channel_id):
