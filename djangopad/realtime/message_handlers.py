@@ -73,12 +73,13 @@ def _handle_edit(content, username, channel_id):
 
     if user is None:
         return {"error":"No such user"}
-
+    '''
     #print 'check the content, username, channel_id', content, username, channel_id
     for c in process( textarea.content, content, user ):
-        content = textarea,content
+        content = textarea.content
         textarea.content = c
-
+    '''
+    textarea.content = content
     textarea.editor = user
     textarea.save()
 
