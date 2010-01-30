@@ -4,15 +4,61 @@ Upon finding the difference, we will determine if we are in a span owned by the
 user argument.  If not, we shall wrap the extraneous characters in such a span.
 import difflib
 s = difflib.SequenceMatcher()
-txt0 = """<span class='foo'>fo</span><span class='bar'>ar</span>"""
-txt1 = """<span class='foo'>foo</span><span class='bar'>ar</span>"""
-txt2 = """<span class='foo'>foo</span>b<span class='bar'>ar</span>"""
-txt3 = """<span class='foo'>foo</span><span class='bar'>bar</span>"""
+txt0 = """<span class="foo">fo</span><span class="bar">ar</span>"""
+txt1 = """<span class="foo">foo</span><span class="bar">ar</span>"""
+txt2 = """<span class="foo">foo</span>b<span class="bar">ar</span>"""
+txt3 = """<span class="foo">foo</span><span class="bar">bar</span>"""
 u0 = 'foo'
 u1 = 'bar'
 s = difflib.SequenceMatcher()
 s.set_seqs(txt0, txt1)
 '''
+
+
+import difflib
+import re
+
+opn = r'<span class="{user}">'
+cls = r'</span>'
+regex = re.compile(r'<span class="(\w+)">')
+
+def process(old, new, user):
+    s = difflib.SequenceMatcher()
+    s.set_seqs(old, new)
+    for d in s.get_opcodes():
+        if d[0] == 'equal':
+            print 'equal between {0}:{1} and {2}:{3}'.format(d[1],d[2],d[3],d[4])
+            pass
+        if d[0] == 'insert':
+            print 'insert at {0} with {1}:{2}'.format(d[1],d[3],d[4])
+            if not regex.findall(new):
+                print 'there are no spans, make the first'
+                yield opn.format(user=user)+new+cls
+            if new.rfind(opn.format(user=user), 0, d[3]) > new.rfind(cls, 0, d[3] ):
+                print 'we are in the correct span'
+                pass
+            else:
+                if regex.findall( new[0:d[3]] ):
+                    other = regex.findall( new[0:d[3]] ).pop()
+                    if new.rfind(opn.format(user=other), 0,d[3])\
+                            > new.rfind(cls,0,d[3]):
+                        print 'we are in somebody else\'s span'
+                        yield new[0:d[3]]+\
+                            cls+opn.format(user=user)+\
+                            new[d[3]:d[4]]+\
+                            cls+opn.format(user=other)+\
+                            new[d[4]:]
+                    else:
+                        print 'no man\'s land'
+                        yield new[0:d[3]]+\
+                            opn.format(user=user)+\
+                            new[d[3]:d[4]]+\
+                            cls + new[d[4]:]
+
+
+"""
+All of this needs to be burned in a fire
+
 
 import difflib
 import re
@@ -23,25 +69,25 @@ class StrExt(str):
             start=None, end=None):
         '''Returns True if the right string is before the wrong string'''
         if not reverse:
-            #print 'going forward'
+            ##print 'going forward'
             if self.find(wrong, start, end) == -1 and\
                     self.find(right, start, end) != -1:
-                #print 'we found a right but not a wrong'
+                ##print 'we found a right but not a wrong'
                 return True
             if self.find(right, start, end) != -1:
-                #print self.find(right, start, end), self.find(wrong, start, end)
+                ##print self.find(right, start, end), self.find(wrong, start, end)
                 return self.find(right, start, end) <\
                         self.find(wrong, start, end)
             else:
-                #print 'we have no right'
+                ##print 'we have no right'
                 return False
         else:
-            #print 'going in reverse'
+            ##print 'going in reverse'
             if self.rfind(right, start, end) != -1 and\
                     self.rfind(wrong, start, end) == -1:
-                #print 'we have found ``right`` and not ``wrong``'
+                ##print 'we have found ``right`` and not ``wrong``'
                 return True
-            #print self.rfind(right, start, end), self.rfind(wrong, start, end)
+            ##print self.rfind(right, start, end), self.rfind(wrong, start, end)
             return self.rfind(right, start, end) > self.rfind(wrong, start, end)
     def indices_match(self, right, other, reverse=False,
             start=None, end=None):
@@ -77,8 +123,8 @@ class StrExt(str):
 
 def get_other_opn(newstring, rawgex, start=None, end=None):
     r = re.compile(rawgex)
-    if r.findall( newstring[start][end] ):
-        return r.findall( newstring[start][end] ).pop()
+    if r.findall( newstring[start:end] ):
+        return r.findall( newstring[start:end] ).pop()
     else:
         return []
 
@@ -91,79 +137,85 @@ def process(oldstring, newstring, owner):
     opn_gen= '<span'
     cls = '</span>'
     regx = r'<span class="(\w+)">'
-    #print old,'\n', new
-    #print opn, cls
+    ##print old,'\n', new
+    ##print opn, cls
     s = difflib.SequenceMatcher()
     s.set_seqs(old,new)
-    print s.get_opcodes()
+    #print s.get_opcodes()
     for oc in s.get_opcodes():
-        #print oc
+        ##print oc
         if not new[oc[3]:oc[4]] or new[oc[3]:oc[4]].isspace():
-            yield newstring
+            return newstring
         if oc[0] == 'insert':
-            print 'we have insert'
+            #print 'we have insert'
             if oc[3] == 0:
-                print 'insert at 0'
+                #print 'insert at 0'
                 tmp = new.add_str_before(cls, oc[4])
                 ret = tmp.add_str_before(opn, 0)
-                yield ret
+                return ret
             elif not any(x in new for x in [opn, opn_gen, cls]):
-                print 'no spans yet'
-                print 'with string,', new, opn, opn_gen, cls
+                #print 'no spans yet'
+                #print 'with string,', new, opn, opn_gen, cls
                 if not new and not opn_gen and not cls:
-                    print 'our strings are lost'
+                    #print 'our strings are lost'
+                    pass
                 tmp = new.add_str_before(cls, len(new))
                 ret = tmp.add_str_before(opn, 0)
-                yield ret
+                return ret
             elif new.right_before_wrong(opn, cls, reverse=True, start=0,
                     end=oc[3]):
-                print 'correct before'
+                #print 'correct before'
                 if new.right_before_wrong(cls, opn_gen, start=oc[3], end=len(new)):
-                    print 'correct tags'
-                    yield new
+                    #print 'correct tags'
+                    return new
                 else:
-                    print 'we are borked'
-                    yield 'we are borked'
+                    #print 'we are borked'
+                    return 'we are borked'
             elif new.right_before_wrong(opn, cls, start=oc[3]-1, end=len(new) ):
-                #print 'next is right'
+                ##print 'next is right'
                 tmp = new.rm_str_sli( oc[4], oc[4]+len(opn) )
-                #print tmp
+                ##print tmp
                 ret = tmp.add_str_before( opn, oc[3] )
-                yield ret
+                return ret
             elif new.rfind(opn, 0, oc[3]) != -1 and new.rfind(opn,0,oc[3]) == new.rfind(opn_gen,0,oc[3]):
-                print 'the previous span is correct'
+                #print 'the previous span is correct'
                 before = new.rfind(cls, 0, oc[3])
-                print before
-                print oc[3], oc[4], len(new)
+                #print before
+                #print oc[3], oc[4], len(new)
                 s = new[oc[3]:oc[4]]
-                print s
+                #print s
                 tmp = new.rm_str_sli( oc[3], oc[4] )
-                print tmp
+                #print tmp
                 ret = tmp.add_str_before(s, before)
-                print ret
-                yield ret
+                #print ret
+                return ret
             elif not new.indices_match(opn,opn_gen,reverse=True,start=0,end=oc[3]) and ( not new.indices_match(opn,opn_gen,start=oc[3],end=len(new)) or not new.right_before_wrong(opn,cls,start=oc[3],end=len(new)) ):
-                print 'not adjacent to correct, wrap with span'
+                #print 'not adjacent to correct, wrap with span'
                 if not new.right_before_wrong(cls,opn_gen,start=oc[3], end=len(new) ):
-                    print 'but we are not in a span, make a new one'
+                    #print 'but we are not in a span, make a new one'
                     tmp = new.add_str_before(cls, oc[4])
-                    print tmp
+                    #print tmp
                     ret = tmp.add_str_before(opn, oc[3]-1)
-                    yield ret
+                    return ret
                 else:
-                    print 'we are in a span, the wrong one'
+                    #print 'we are in a span, the wrong one'
                     #t = new.rm_str_slice(new.find(cls),oc[3],len(new)
+                    #print new, 0, oc[3]
+                    #print 'the length of new is', len(new)
                     other = get_other_opn(new,regx,0,oc[3])
-                    print other
+                    #print other
+                    '''
                     r = re.compile(r'(<span class="\w+">)')
                     if r.findall(r'<span class="{0}">'.format(other)):
                         opn_other = r.findall(r'<span class="{0}">'.format(other)).pop()
                     else:
                         opn_other = ''
-                    tmp = new.add_str_before(opn_other, oc[4]+1)
+                    '''
+                    opn_other = '<span class="{0}">'.format(other)
+                    tmp = new.add_str_before(opn_other, oc[4])
                     i = tmp.add_str_before(cls, oc[4])
                     ret = i.add_str_before(opn, oc[3])
-                    yield ret
+                    return ret
 
 def get_addition(newstring, oldstring):
     '''If it is addition, return the index of the first changed character
@@ -217,7 +269,7 @@ def diff_and_span(newstring, oldstring, username):
         return newstring
 
     i = get_addition(newstring, oldstring)
-    print i
+    #print i
 
     if i and not see_has_span(i, newstring, oldstring):
         return wrap_span(i, newstring, username)
@@ -227,4 +279,4 @@ def diff_and_span(newstring, oldstring, username):
 
 
 
-
+"""

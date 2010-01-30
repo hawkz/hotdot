@@ -79,10 +79,10 @@ def _handle_edit(content, username, channel_id):
         content = textarea.content
         textarea.content = c
     '''
+
     textarea.content = content
     textarea.editor = user
     textarea.save()
-
     return {"content":textarea.content}
 
 def _handle_save(content, username, channel_id):
