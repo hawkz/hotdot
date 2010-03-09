@@ -18,7 +18,7 @@ logging.setup(config.map)
 INTERFACE = "localhost"
 #Runtime config, is there a cleaner way?:
 config.map["[access]"]={(INTERFACE, 9999):"*"}
-STATIC_PORT = 8000
+STATIC_PORT = 8088
 RESTQ_PROXY_PORT = 5000
 STOMP_PORT = 9999
 

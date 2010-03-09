@@ -73,13 +73,19 @@ def _handle_edit(content, username, channel_id):
 
     if user is None:
         return {"error":"No such user"}
-
+    '''
     #print 'check the content, username, channel_id', content, username, channel_id
     c = process( textarea.content, content, user )
     textarea.content = c
+    for c in process( textarea.content, content, user ):
+        content = textarea.content
+        textarea.content = c
+    '''
+
+    textarea.content = content
     textarea.editor = user
     textarea.save()
-    print 'WE ARE ABOUT TO SAVE FOR MESSAGE_HANDLERS.PY'
+    #print 'WE ARE ABOUT TO SAVE FOR MESSAGE_HANDLERS.PY'
     return {"content":content}
 
 def _handle_save(content, username, channel_id):

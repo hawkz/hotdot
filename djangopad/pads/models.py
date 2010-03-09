@@ -79,12 +79,14 @@ class TextArea(models.Model):
         """Save a Revisioned copy after the real save.
         """
         super(TextArea, self).save(*args, **kwargs)
+        '''
         new_revision = TextAreaRevision()
         new_revision.pad_guid=self.pad.guid
         new_revision.content=self.content
         new_revision.editor=self.editor
         new_revision.edit_time=self.edit_time
         new_revision.save()
+        '''
 
 class TextAreaRevision(models.Model):
     """Snapshot of the current TextArea state

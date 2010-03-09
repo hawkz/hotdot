@@ -1,12 +1,12 @@
 #chatbox {
-    position:absolute;
+    position:fixed;
     z-index:999;
     bottom:2px;
     right:8px;
     background-color:#EFEFEF;
     border:1px solid #DFDFDF;
     font-family:sans-serif;
-    width:200px;
+    width:260px;
     height:20px;
 }
 #chatbox p#chat_title {
@@ -24,7 +24,7 @@
 }
 #chat_type_box {
     margin-left:2px;
-    width:184px;
+    width:250px;
     height:30px;
     position:absolute;
     bottom:-4px;
@@ -35,8 +35,8 @@
 }
 #chat_text {
     position:relative;
-    height:225px;
-    width:194px;
+    height:800px;
+    width:254px;
     overflow-y:auto;
     border:none;
 }
