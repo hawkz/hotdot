@@ -14,7 +14,6 @@ s = difflib.SequenceMatcher()
 s.set_seqs(txt0, txt1)
 '''
 
-
 import difflib
 import re
 
@@ -26,15 +25,30 @@ def process(old, new, user):
     s = difflib.SequenceMatcher()
     s.set_seqs(old, new)
     for d in s.get_opcodes():
+        if not regex.findall( new ):
+            new1 = opn.format(user=user)+new+cls
+            pass
+        if not regex.findall( new[:d[3]]):
+            new1 = opn.format(user=user)+new[0:d[4]]+cls+new[d[4]:]
+            pass
         if d[0] == 'equal':
             print 'equal between {0}:{1} and {2}:{3}'.format(d[1],d[2],d[3],d[4])
+            pass
+        if d[0] == 'replace':
+            print 'REPLACE, {0}:{1} with {2}:{3}'.format(d[1],d[2],d[3],d[4])
+            pass
+        if d[0] == 'delete':
+            print 'DELETE'
             pass
         if d[0] == 'insert':
             print 'insert at {0} with {1}:{2}'.format(d[1],d[3],d[4])
             if not regex.findall(new):
                 print 'there are no spans, make the first'
-                yield opn.format(user=user)+new+cls
-            if new.rfind(opn.format(user=user), 0, d[3]) > new.rfind(cls, 0, d[3] ):
+                #new = opn.format(user=user)+new+cls
+            elif not regex.findall( new[0:d[3]] ):
+                print 'NO SPANS BEFORE'
+                #new = opn.format(user=user)+new[0:d[4]]+cls+new[d[4]:]
+            elif new.rfind(opn.format(user=user), 0, d[3]) > new.rfind(cls, 0, d[3] ):
                 print 'we are in the correct span'
                 pass
             else:
@@ -43,18 +57,18 @@ def process(old, new, user):
                     if new.rfind(opn.format(user=other), 0,d[3])\
                             > new.rfind(cls,0,d[3]):
                         print 'we are in somebody else\'s span'
-                        yield new[0:d[3]]+\
+                        new1 = new[0:d[3]]+\
                             cls+opn.format(user=user)+\
                             new[d[3]:d[4]]+\
                             cls+opn.format(user=other)+\
                             new[d[4]:]
                     else:
                         print 'no man\'s land'
-                        yield new[0:d[3]]+\
+                        new1 = new[0:d[3]]+\
                             opn.format(user=user)+\
                             new[d[3]:d[4]]+\
                             cls + new[d[4]:]
-
+    return new1
 
 """
 All of this needs to be burned in a fire

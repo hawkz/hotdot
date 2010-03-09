@@ -75,13 +75,12 @@ def _handle_edit(content, username, channel_id):
         return {"error":"No such user"}
 
     #print 'check the content, username, channel_id', content, username, channel_id
-    for c in process( textarea.content, content, user ):
-        content = c
-
-    textarea.content = content
+    c = process( textarea.content, content, user )
+    textarea.content = c
     textarea.editor = user
     textarea.save()
-    return {"content":textarea.content}
+    print 'WE ARE ABOUT TO SAVE FOR MESSAGE_HANDLERS.PY'
+    return {"content":content}
 
 def _handle_save(content, username, channel_id):
     """Just can't see saving on each keystroke.
@@ -91,11 +90,13 @@ def _handle_save(content, username, channel_id):
 
     r = _handle_edit(content, username, channel_id)
     # Do this here instead of each time the TextArea is changed.
+    '''
     new_revision = TextAreaRevision()
     new_revision.pad_guid = channel_id
     new_revision.content = content
     new_revision.editor = User.objects.get(username=username)
     new_revision.save()
+    '''
 
     return r
 
